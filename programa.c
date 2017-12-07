@@ -39,6 +39,7 @@ int main(int argc, char *argv[]){
 			signal(SIGUSR1,funcionComprobarAnestesia);
 			signal(SIGUSR2, funcionGenerarUnoOCero);
 			printf("Soy la enfermera %d.\n", getpid());
+			printf("Soy %d: Esperando a recibir una señal.\n", getpid() );
 			pause();
 			pause();
 			exit(0);
@@ -59,6 +60,7 @@ int main(int argc, char *argv[]){
 	int enfermeraComprobarAnestesia=calculaAleatorios( 0, NUMEROENFERMERAS-1 );
 	printf("\nVoy a enviar una señal a %d.\n", pid[enfermeraComprobarAnestesia] );
 	kill( pid[enfermeraComprobarAnestesia], SIGUSR1 );
+	printf("Soy la doctora %d: Esperando a recibir una señal\n", getpid() );
 	pause();
 	printf("Notifico a todas las enfermeras por medio de SIGUSR2.\n");
 	/*La doctora notifica a las enfermeras*/
