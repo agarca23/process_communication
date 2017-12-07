@@ -15,8 +15,8 @@ void handlerSIGUSR2();
 	
 
 int main(){
-	printf("Hola");
-	int x,i=0, status;
+
+	int i=0;
 	pid_t pid[NUMEROENFERMERAS];
 
 
@@ -24,14 +24,10 @@ int main(){
 	for(i=0; i<NUMEROENFERMERAS; i++){
 		pid[i]=fork();
 		if(pid[i]==-1){
-			perror("Error en la llamada al fork()");
+			perror("Error en la llamada al fork()\n");
 			exit(0);
 		}else if(pid[i]==0){
-			signal(SIGUSR1,funcionComprobarAnestesia);
-		//	signal(SIGUSR2,handlerSIGUSR2);
-			printf("Soy la enfermera %d", getpid());
-			pause();
-			kill(getppid(),SIGUSR1);
+			printf("Soy la enfermera %d\n", getpid());
 			exit(0);
 		}
 	}
@@ -39,11 +35,8 @@ int main(){
 
 	/*Código del padre*/
 
-	signal(SIGUSR1,avisarTodasLasEnfermeras);
-	int numeroAleatorio=calculaAleatorios(0,NUMEROENFERMERAS);
-	kill(numeroAleatorio,SIGUSR1);
-	pause();
-	printf("Saliendo\n");
+
+	printf("Soy la doctora %d\n", getpid());
 	
 	
 
@@ -55,29 +48,4 @@ int main(){
 int calculaAleatorios(int min, int max){
 	srand(time(NULL));
 	return rand()%(max-min+1)+min;
-}
-
-
-/*función en la que el hijo espera a que el paciente se duerma
- *y envía la señal al padre*/
-void funcionComprobarAnestesia(){
-	printf("Enfermera %d esperando a que el paciente se durerma.\n", getpid());
-	sleep(calculaAleatorios(1,12));
-	printf("Paciente anestesiado\n" );
-	printf("Enfermera %d envia la señal SIGUSR1 a la doctora.\n", getpid());
-	kill(getppid(), SIGUSR1);
-}
-
-/*función que genera un uno o un cero de manera aleatoria*/
-int funcionGenerarUnoCeros(){
-	
-}
-
-void handlerSIGUSR2(){
-
-}
-
-
-void avisarTodasLasEnfermeras(){
-
 }
