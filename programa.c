@@ -14,9 +14,19 @@ void avisarTodasLasEnfermeras(int sig);
 void handlerSIGUSR2();
 	
 
-int main(){
+int main(int argc, char *argv[]){
+	/*Si el numero de argumentos no es correcto informamos y finalizamos la ejecucion*/
+	if (argc!=3){
+		printf("Debe pasar tres argumentos\n");
+		exit(0);
+	}
+
+	/*pasamos las cadenas de caracteres de argv[] a int*/
+	int minimo=atoi(argv[1]);
+	int maximo=atoi(argv[2]);
+
 	
-	int i=0, status;
+	int i=0;
 	pid_t pid[NUMEROENFERMERAS];
 
 
@@ -46,17 +56,16 @@ int main(){
 
 	/*La doctura avisa a una enfermera y espera a recibir SIGUSR1 para avisar a todas*/
 	signal(SIGUSR1,avisarTodasLasEnfermeras);
-	sleep(0.5);
+	sleep(1);
 	int enfermeraComprobarAnestesia=calculaAleatorios(0,NUMEROENFERMERAS-1);
-	printf("%d\n",enfermeraComprobarAnestesia );
 	printf("Voy a enviar una señal a %d\n", pid[enfermeraComprobarAnestesia]);
-
 	kill(pid[enfermeraComprobarAnestesia], SIGUSR1);
 	pause();
 	/*La doctora notifica a las enfermeras*/
 	for(i=0;i<NUMEROENFERMERAS;i++){
 		kill(pid[i], SIGUSR2);
 	}
+	calculaAleatorios(0, 7);
 	return 0;
 }
 
@@ -72,6 +81,7 @@ void funcionComprobarAnestesia(int sig){
 	int tiempoQueTardaAnestesia=calculaAleatorios(1,12);
 	sleep(tiempoQueTardaAnestesia);
 	printf("El paciente está anestesiado, ha tardado %d segundos\n", tiempoQueTardaAnestesia);
+	kill(getppid(),SIGUSR1);
 }
 
 void avisarTodasLasEnfermeras(int sig){
