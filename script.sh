@@ -22,7 +22,7 @@ else
 				read min
 				echo "Introduzca un valor máximo"
 				read max
-				./programa;;
+				./programa $min $max;;
 			4) echo "Saliendo...";;
 			*) echo "Opción erronea";;
 		esac
