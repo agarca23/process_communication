@@ -11,7 +11,6 @@ int calculaAleatorios(int min, int max);
 void funcionComprobarAnestesia(int sig);
 void funcionGenerarUnoOCero(int sig);
 void avisarTodasLasEnfermeras(int sig);
-void handlerSIGUSR2();
 	
 
 int main(int argc, char *argv[]){
@@ -26,7 +25,7 @@ int main(int argc, char *argv[]){
 	int maximo=atoi(argv[2]);
 
 	
-	int i=0;
+	int i=0, status;
 	pid_t pid[NUMEROENFERMERAS];
 
 
@@ -40,6 +39,7 @@ int main(int argc, char *argv[]){
 			signal(SIGUSR1,funcionComprobarAnestesia);
 			signal(SIGUSR2, funcionGenerarUnoOCero);
 			printf("Soy la enfermera %d\n", getpid());
+			pause();
 			pause();
 			exit(0);
 		}
@@ -65,7 +65,29 @@ int main(int argc, char *argv[]){
 	for(i=0;i<NUMEROENFERMERAS;i++){
 		kill(pid[i], SIGUSR2);
 	}
-	calculaAleatorios(0, 7);
+
+	/*Esperamos por cada uno de los hijos y recogemos el estado*/
+	int numeroCeros=0;
+	int numeroUnos=0;
+	for(i=0;i<NUMEROENFERMERAS;i++){
+		wait(&status);
+		if(WIFEXITED(status)){
+			if(WEXITSTATUS(status)==1){
+				numeroUnos++;
+			}
+			if(WEXITSTATUS(status)==0){
+				numeroCeros++;
+			}
+		}
+	}
+    int numeroParaExitoOperacion=calculaAleatorios(minimo, maximo);
+    printf("El numero de 1s es %d\n", numeroUnos);
+    printf("El numero generado por la doctora es %d\n",numeroParaExitoOperacion );
+	if(numeroUnos>=3&&numeroParaExitoOperacion%2==0){
+		printf("La operación ha resultado satisfactoria\n");
+	}else{
+		printf("El paciente ha muerto\n" );
+	}
 	return 0;
 }
 
@@ -81,15 +103,20 @@ void funcionComprobarAnestesia(int sig){
 	int tiempoQueTardaAnestesia=calculaAleatorios(1,12);
 	sleep(tiempoQueTardaAnestesia);
 	printf("El paciente está anestesiado, ha tardado %d segundos\n", tiempoQueTardaAnestesia);
+	printf("Notifico a la doctora por medio de SIGUSR1\n");
 	kill(getppid(),SIGUSR1);
 }
 
 void avisarTodasLasEnfermeras(int sig){
+	printf("La enfermera me ha notificado que el paciente ya está anestesiado\n");
 	printf("Iniciando la operación\n");
 
 }
 
+
+/*Se ejecuta cuando recibimos SIGURS2, calcula un numero entre cero y uno. Finalizan las enfermeras*/
 void funcionGenerarUnoOCero(int sig){
 	int numAleatorio=calculaAleatorios(0,1);
 	printf("La enfermera %d ha generado un %d\n",getpid(),numAleatorio);
+	exit(numAleatorio);
 }
