@@ -56,16 +56,20 @@ int main(int argc, char *argv[]){
 
 	/*La doctora avisa a una enfermera y espera a recibir SIGUSR1 para avisar a todas*/
 	signal( SIGUSR1, inicioDeOperacion );
-	sleep(1);
+	sleep(2);
 	int enfermeraComprobarAnestesia=calculaAleatorios( 0, NUMEROENFERMERAS-1 );
-	printf("\nVoy a enviar una señal a %d.\n", pid[enfermeraComprobarAnestesia] );
+	printf("\n--------------------------------------------------\n");
+	printf("\nSoy la doctora %d: voy a enviar una señal a %d.\n", getpid(), pid[enfermeraComprobarAnestesia] );
 	kill( pid[enfermeraComprobarAnestesia], SIGUSR1 );
-	printf("Soy la doctora %d: Esperando a recibir una señal\n", getpid() );
+	printf("Soy la doctora %d: Esperando a recibir una señal.\n", getpid() );
 	pause();
-	printf("Notifico a todas las enfermeras por medio de SIGUSR2.\n");
+	printf("Soy la doctora %d: Notifico a todas las enfermeras por medio de SIGUSR2.\n", getpid());
+
 	/*La doctora notifica a las enfermeras*/
 	for( i=0 ; i<NUMEROENFERMERAS ; i++){
+
 		kill( pid[i], SIGUSR2 );
+		sleep(1);
 	}
 
 	/*Esperamos por cada uno de los hijos y recogemos el estado*/
@@ -89,9 +93,9 @@ int main(int argc, char *argv[]){
 
     /*Calculamos si la operación ha tenido exito*/
 	if(numeroUnos>=3&&numeroParaExitoOperacion%2==0){
-		printf("La operación ha resultado satisfactoria.\n");
+		printf("La operación ha resultado satisfactoria.\n\n");
 	}else{
-		printf("El paciente ha muerto.\n" );
+		printf("El paciente ha muerto.\n\n" );
 	}
 	return 0;
 }
@@ -115,13 +119,14 @@ void funcionComprobarAnestesia(int sig ){
 
 /*Se ejecuta cuando el padre recibe SIGUSR1*/
 void inicioDeOperacion(int sig ){
-	printf("La enfermera me ha notificado que el paciente ya está anestesiado.\n");
-	printf("Iniciando la operación.\n");
+	printf("Soy la doctora %d: La enfermera me ha notificado que el paciente ya está anestesiado.\n", getpid());
+	printf("\n--------------------------------------------------\n");
+	printf("\nIniciando la operación.\n");
 
 }
 
 
-/*Se ejecuta cuando recibimos SIGUSR2, calcula un numero entre cero y uno. Finalizan las enfermeras*/
+/*Se ejecuta cuando recibimos SIGURS2, calcula un numero entre cero y uno. Finalizan las enfermeras*/
 void funcionGenerarUnoOCero(int sig){
 	int numAleatorio=calculaAleatorios(0,1);
 	printf("Soy la enfermera %d y he generado un %d.\n", getpid(), numAleatorio );
