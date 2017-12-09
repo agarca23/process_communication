@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
 	int i=0, status;
 	pid_t pid[NUMEROENFERMERAS];
 
-
+	printf("\nSoy la doctora %d.\n", getpid());
 	/*En el bucle creamos los hijos y ejecutamos su código*/
 	for(i=0; i<NUMEROENFERMERAS; i++){
 		pid[i]=fork();
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
 
 	/*CÓDIDO DEL PADRE*/
 
-	printf("Soy la doctora %d.\n", getpid());
+
 	for( i=0 ; i<NUMEROENFERMERAS ; i++ ){
 		printf("Hoy ha venido a trabajar la enfermera %d.\n", pid[i] );
 	} 
